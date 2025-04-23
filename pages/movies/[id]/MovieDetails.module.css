@@ -1,0 +1,99 @@
+.container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .title {
+    color: #1a1a1a;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 3px solid #0070f3;
+    padding-bottom: 0.5rem;
+  }
+  
+  .description {
+    color: #4a4a4a;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+  }
+  
+  .detailsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .detailItem {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .detailLabel {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .detailValue {
+    color: #212529;
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+  
+  .directorLink {
+    color: #0070f3;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .directorLink:hover {
+    color: #0051a2;
+    text-decoration: underline;
+  }
+  
+  .backLink {
+    display: inline-block;
+    margin-top: 2rem;
+    padding: 0.8rem 1.5rem;
+    background-color: #0070f3;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .backLink:hover {
+    background-color: #0051a2;
+  }
+  
+  .loading {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #6c757d;
+    margin: 3rem 0;
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      margin: 1rem;
+      padding: 1.5rem;
+    }
+  
+    .title {
+      font-size: 2rem;
+    }
+  
+    .detailsContainer {
+      grid-template-columns: 1fr;
+    }
+  }

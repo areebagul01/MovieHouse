@@ -1,0 +1,85 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 80vh;
+  }
+  
+  .title {
+    font-size: 2.5rem;
+    color: #222;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .content {
+    background: white;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+  }
+  
+  .navGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+  }
+  
+  .navCard {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 25px;
+    text-align: center;
+    transition: transform 0.2s ease;
+  }
+  
+  .navCard:hover {
+    transform: translateY(-3px);
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .navLink {
+    color: #0984e3;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+  
+  .homeLink {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 24px;
+    background-color: #f5f6fa;
+    color: #2d3436;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .homeLink:hover {
+    background-color: #dcdde1;
+  }
+  
+  .sectionTitle {
+    font-size: 1.4rem;
+    color: #2d3436;
+    margin-bottom: 15px;
+  }
+  
+  .sectionContent {
+    color: #636e72;
+    line-height: 1.6;
+  }
+  
+  @media (max-width: 768px) {
+    .title {
+      font-size: 2rem;
+    }
+    
+    .content {
+      padding: 20px;
+    }
+  }
