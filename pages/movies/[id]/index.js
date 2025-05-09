@@ -1,91 +1,84 @@
-import Link from 'next/link';
+// pages/movies/[id]/index.js
+import { 
+  Container, 
+  Typography, 
+  Chip, 
+  Button, 
+  Box, 
+  CircularProgress,
+  Alert,
+  Link
+} from '@mui/material';
 import { useRouter } from 'next/router';
-import styles from './MovieDetails.module.css';
+import useSWR from 'swr';
+import NextLink from 'next/link';
 
-export default function MovieDetails({ movie, director, genre }) {
+const fetcher = url => fetch(url).then(res => res.json());
+
+export default function MovieDetails() {
   const router = useRouter();
+  const { id } = router.query;
+  const { data: movie, error } = useSWR(id ? `/api/movies/${id}` : null, fetcher);
 
-  if (router.isFallback) 
-    return <div>Loading...</div>;
+  if (error) return (
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Alert severity="error">
+        Failed to load movie details. 
+        <Button sx={{ ml: 2 }} onClick={() => router.reload()}>Retry</Button>
+      </Alert>
+    </Container>
+  );
+
+  if (!movie) return (
+    <Container maxWidth="md" sx={{ mt: 4, textAlign: 'center' }}>
+      <CircularProgress />
+    </Container>
+  );
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>{movie.title}</h1>
-      <p className={styles.description}>{movie.description}</p>
-      
-      <div className={styles.detailsContainer}>
-        <div className={styles.detailItem}>
-          <div className={styles.detailLabel}>Release Year</div>
-          <div className={styles.detailValue}>{movie.releaseYear}</div>
-        </div>
-        
-        <div className={styles.detailItem}>
-          <div className={styles.detailLabel}>Rating</div>
-          <div className={styles.detailValue}>{movie.rating}/10</div>
-        </div>
-        
-        <div className={styles.detailItem}>
-          <div className={styles.detailLabel}>Genre</div>
-          <div className={styles.detailValue}>{genre.name}</div>
-        </div>
-        
-        <div className={styles.detailItem}>
-          <div className={styles.detailLabel}>Director</div>
-          <Link 
-            href={`/movies/${movie.id}/director`} 
-            className={styles.directorLink}
-          >
-            {director.name}
-          </Link>
-        </div>
-      </div>
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Button variant="outlined" onClick={() => router.back()}>
+          Back to Movies
+        </Button>
+      </Box>
 
-      <Link href="/movies" className={styles.backLink}>
-        Back to Movies
-      </Link>
-    </div>
+      <Typography variant="h3" gutterBottom>
+        {movie.title}
+      </Typography>
+
+      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+        <Chip label={`⭐ ${movie.rating || 'N/A'}`} color="primary" />
+        <Chip 
+          label={`Year: ${movie.releaseYear || 'Unknown'}`} 
+          variant="outlined" 
+        />
+        {movie.genre?.name && (
+          <Chip 
+            label={`Genre: ${movie.genre.name}`} 
+            variant="outlined" 
+          />
+        )}
+      </Box>
+
+      <Typography variant="body1" paragraph sx={{ mb: 4 }}>
+        {movie.description || 'No description available.'}
+      </Typography>
+
+      {movie.director?.name && (
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h5" gutterBottom>
+            Director Information
+          </Typography>
+          <NextLink href={`/movies/${id}/director`} passHref legacyBehavior>
+            <Link underline="hover">
+              <Typography variant="body1" sx={{ cursor: 'pointer' }}>
+                🎬 {movie.director.name}
+              </Typography>
+            </Link>
+          </NextLink>
+        </Box>
+      )}
+    </Container>
   );
-}
-
-export async function getStaticPaths() {
-  const fs = require('fs');
-  const path = require('path');
-  const filePath = path.join(process.cwd(), 'data', 'movies.json');
-  const jsonData = fs.readFileSync(filePath);
-  const data = JSON.parse(jsonData);
-
-  const paths = data.movies.map(movie => (
-    { params: 
-        { 
-            id: movie.id 
-        } 
-    }
-  ));
-
-  return { 
-    paths, 
-    fallback: 'blocking' 
-  };
-}
-
-export async function getStaticProps({ params }) {
-  const fs = require('fs');
-  const path = require('path');
-  const filePath = path.join(process.cwd(), 'data', 'movies.json');
-  const jsonData = fs.readFileSync(filePath);
-  const data = JSON.parse(jsonData);
-
-  const movie = data.movies.find(m => m.id === params.id);
-  if (!movie) 
-    return { 
-        notFound: true 
-    };
-
-  const director = data.directors.find(d => d.id === movie.directorId);
-  const genre = data.genres.find(g => g.id === movie.genreId);
-
-  return { 
-    props: { movie, director, genre }, 
-    revalidate: 60 
-  };
 }
