@@ -65,7 +65,7 @@ export default function MovieDetails() {
         {movie.description || 'No description available.'}
       </Typography>
 
-      {movie.director?.name && (
+      {movie.directorId?.name && (
         <Box sx={{ mt: 4 }}>
           <Typography variant="h5" gutterBottom>
             Director Information
@@ -73,7 +73,7 @@ export default function MovieDetails() {
           <NextLink href={`/movies/${id}/director`} passHref legacyBehavior>
             <Link underline="hover">
               <Typography variant="body1" sx={{ cursor: 'pointer' }}>
-                🎬 {movie.director.name}
+                🎬 {movie.directorId.name}
               </Typography>
             </Link>
           </NextLink>

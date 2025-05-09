@@ -11,6 +11,12 @@ const directorSchema = new mongoose.Schema({
   }
 }, { collection: 'directors' });
 
-// Prevent model overwrite in dev mode
-const Director = mongoose.models.Director || mongoose.model('Director', directorSchema);
+// Safe model registration pattern
+let Director;
+try {
+  Director = mongoose.model('Director');
+} catch {
+  Director = mongoose.model('Director', directorSchema);
+}
+
 export default Director;

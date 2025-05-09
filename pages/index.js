@@ -62,6 +62,13 @@ export default function Home({ trendingMovies }) {
         >
           Browse Genres
         </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => router.push('/directors')}
+        >
+          View All Directors
+        </Button>
       </Box>
     </Container>
   );

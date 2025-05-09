@@ -1,40 +1,76 @@
+import { 
+  Container, 
+  Typography, 
+  Grid, 
+  Card, 
+  CardContent, 
+  CircularProgress,
+  Alert,
+  Link,
+  Box
+} from '@mui/material';
 import useSWR from 'swr';
-import Link from 'next/link';
-import styles from './Directors.module.css';
+import NextLink from 'next/link';
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
+const fetcher = url => fetch(url).then(res => res.json());
 
 export default function Directors() {
-  const { data, error } = useSWR('/api/directors', fetcher);
-
-  if (error) return <div>Failed to load directors</div>;
-  if (!data) return <div>Loading...</div>;
+  const { data, error, isLoading } = useSWR('/api/directors', fetcher);
 
   return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>Directors</h1>
-      </header>
-      
-      <div className={styles.directorGrid}>
-        {data.map(director => (
-          <article key={director.id} className={styles.directorCard}>
-            <h2 className={styles.directorName}>{director.name}</h2>
-            <p className={styles.biography}>{director.biography}</p>
-            
-            <h3 className={styles.moviesHeader}>Movies Directed:</h3>
-            <ul className={styles.movieList}>
-              {director.movies.map(movie => (
-                <li key={movie.id} className={styles.movieItem}>
-                  <Link href={`/movies/${movie.id}`} className={styles.movieLink}>
-                    {movie.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </article>
-        ))}
-      </div>
-    </div>
+    <Container maxWidth="xl" sx={{ mt: 4 }}>
+      <Typography variant="h3" gutterBottom sx={{ fontWeight: 'bold', mb: 4 }}>
+        Film Directors
+      </Typography>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Failed to load directors data
+        </Alert>
+      )}
+
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <CircularProgress size={60} />
+        </Box>
+      ) : (
+        <Grid container spacing={3}>
+          {data?.map(director => (
+            <Grid item xs={12} sm={6} md={4} key={director._id}>
+              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Typography variant="h5" gutterBottom>
+                    {director.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" paragraph>
+                    {director.biography}
+                  </Typography>
+                  
+                  <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>
+                    Directed Movies:
+                  </Typography>
+                  
+                  <Box component="ul" sx={{ 
+                    pl: 2,
+                    listStyle: 'none',
+                    '& li': { mb: 0.5 }
+                  }}>
+                    {director.movies.map(movie => (
+                      <li key={movie._id}>
+                        <NextLink href={`/movies/${movie._id}`} passHref legacyBehavior>
+                          <Link color="secondary" underline="hover">
+                            {movie.title}
+                          </Link>
+                        </NextLink>
+                      </li>
+                    ))}
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
+    </Container>
   );
 }

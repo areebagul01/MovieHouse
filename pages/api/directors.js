@@ -1,15 +1,35 @@
-import fs from 'fs';
-import path from 'path';
+import connectDB from '../../lib/db';
+import Director from '../../models/Director';
+import Movie from '../../models/Movie';
 
-export default function handler(req, res) {
-  const filePath = path.join(process.cwd(), 'data', 'movies.json');
-  const jsonData = fs.readFileSync(filePath);
-  const data = JSON.parse(jsonData);
+export default async function handler(req, res) {
+  await connectDB();
 
-  const directorsWithMovies = data.directors.map(director => ({
-    ...director,
-    movies: data.movies.filter(movie => movie.directorId === director.id),
-  }));
+  try {
+    const directors = await Director.aggregate([
+      {
+        $lookup: {
+          from: 'movies',
+          localField: '_id',
+          foreignField: 'directorId',
+          as: 'movies',
+          pipeline: [{
+            $project: { title: 1, _id: 1 }
+          }]
+        }
+      },
+      {
+        $project: {
+          name: 1,
+          biography: 1,
+          movies: 1
+        }
+      }
+    ]);
 
-  res.status(200).json(directorsWithMovies);
+    res.status(200).json(directors);
+  } catch (error) {
+    console.error('API Error:', error);
+    res.status(500).json({ error: 'Failed to fetch directors' });
+  }
 }
