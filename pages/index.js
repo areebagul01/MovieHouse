@@ -129,7 +129,7 @@ export async function getServerSideProps() {
 
     const movies = await Movie.find({})
       .sort({ rating: -1 })
-      .limit(5)
+      .limit(6)
       .lean();
 
     return {

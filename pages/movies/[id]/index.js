@@ -1,4 +1,3 @@
-// pages/movies/[id]/index.js
 import { 
   Container, 
   Typography, 
