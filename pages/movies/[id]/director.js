@@ -12,17 +12,20 @@ import {
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
 import connectDB from '../../../lib/db';
-import Director from '../../../models/Director';
 import Movie from '../../../models/Movie';
+import Director from '../../../models/Director';
 
 const fetcher = url => fetch(url).then(res => res.json());
 
-export default function DirectorPage() {
+export default function DirectorPage({ initialDirector }) {
   const router = useRouter();
-  const { id } = router.query;
+  const { id: movieId } = router.query;
+  
+  // Get fresh data using the director ID from initial props
   const { data: director, error } = useSWR(
-    id ? `/api/director/${id}` : null,
-    fetcher
+    initialDirector?._id ? `/api/director/${initialDirector._id}` : null,
+    fetcher,
+    { fallbackData: initialDirector }
   );
 
   if (error) return (
@@ -64,13 +67,13 @@ export default function DirectorPage() {
         Directed Movies
       </Typography>
 
-      {director.movies?.length === 0 ? (
+      {director.movies.length === 0 ? (
         <Alert severity="info" sx={{ mb: 3 }}>
           No movies found for this director
         </Alert>
       ) : (
         <Grid container spacing={3}>
-          {(director.movies || []).map(movie => (
+          {director.movies.map(movie => (
             <Grid item xs={12} sm={6} md={4} key={movie._id}>
               <Card sx={{ 
                 height: '100%',
@@ -107,14 +110,12 @@ export default function DirectorPage() {
 
 export async function getStaticPaths() {
   await connectDB();
-  const movies = await Movie.find().select('directorId').lean();
-
-  const paths = movies.map(movie => ({
-    params: { id: movie._id.toString() }
-  }));
-
+  const movies = await Movie.find({ directorId: { $exists: true } }).lean();
+  
   return {
-    paths,
+    paths: movies.map(movie => ({
+      params: { id: movie._id.toString() }
+    })),
     fallback: 'blocking'
   };
 }
@@ -123,29 +124,30 @@ export async function getStaticProps({ params }) {
   await connectDB();
 
   try {
+    // 1. Get movie first
     const movie = await Movie.findById(params.id)
-      .populate('directorId')
+      .select('directorId')
       .lean();
 
-    if (!movie?.directorId) {
-      return { notFound: true };
-    }
+    if (!movie?.directorId) return { notFound: true };
 
-    const directorMovies = await Movie.find({ 
-      directorId: movie.directorId._id 
-    })
+    // 2. Get director data
+    const director = await Director.findById(movie.directorId).lean();
+    
+    // 3. Get director's movies
+    const movies = await Movie.find({ directorId: movie.directorId })
       .select('title rating _id')
       .lean();
 
     return {
       props: {
-        director: {
-          ...movie.directorId,
-          _id: movie.directorId._id.toString(),
-          movies: directorMovies.map(m => ({
+        initialDirector: {
+          ...director,
+          _id: director._id.toString(),
+          movies: movies.map(m => ({
             ...m,
             _id: m._id.toString()
-          })) || []
+          }))
         }
       },
       revalidate: 60
